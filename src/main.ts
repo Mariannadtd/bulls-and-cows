@@ -1,8 +1,10 @@
+import { createGameScreen } from './ui/createGameScreen.js';
+
 const baseOptions = [
   { value: 2, label: 'Binary: 0-1' },
   { value: 8, label: 'Octal: 0-7' },
   { value: 10, label: 'Decimal: 0-9' },
-  { value: 2, label: 'Hex: 0-1' },
+  { value: 16, label: 'Hex: 0–9, A–F' },
 ];
 
 const lengths = [2, 3, 4, 5, 6];
@@ -16,6 +18,8 @@ const lengthLabel = document.createElement('label');
 const lengthSelect = document.createElement('select');
 const startButton = document.createElement('button');
 const selectedSettings = document.createElement('p');
+const gameScreen = createGameScreen();
+gameScreen.element.hidden = true;
 
 title.textContent = 'BULLS & COWS';
 baseLabel.textContent = 'Number system';
@@ -56,6 +60,7 @@ app.className = 'app';
 title.className = 'app-title';
 baseLabel.className = 'field-label';
 baseSelect.className = 'field-control';
+form.className = 'settings-form';
 
 selectedSettings.className = 'selected-settings';
 
@@ -78,11 +83,14 @@ form.addEventListener('submit', (event) => {
   baseSelect.disabled = true;
   lengthSelect.disabled = true;
   startButton.disabled = true;
+  gameScreen.setLength(Number(lengthSelect.value));
+  gameScreen.element.hidden = false;
+
   const selectedBaseLabel = baseSelect.selectedOptions.item(0)?.textContent ?? '';
   selectedSettings.textContent = `Selected: ${selectedBaseLabel}, length ${lengthSelect.value}`;
 });
 
 form.append(baseLabel, baseSelect, lengthLabel, lengthSelect, startButton);
-app.append(title, form, selectedSettings);
+app.append(title, form, selectedSettings, gameScreen.element);
 
 document.body.replaceChildren(app);

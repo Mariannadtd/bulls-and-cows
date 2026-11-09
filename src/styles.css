@@ -87,3 +87,67 @@ body {
   font-weight: 700;
   text-align: center;
 }
+
+.game-screen {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #dbe3f5;
+}
+
+.game-screen[hidden] {
+  display: none;
+}
+
+.game-title {
+  margin: 0 0 18px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.guess-form {
+  display: grid;
+  gap: 12px;
+}
+
+.check-button {
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 700;
+  color: #ffffff;
+  background: #172033;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.check-button:hover {
+  background: #2d3a55;
+}
+
+.history {
+  margin-top: 24px;
+}
+
+.attempts-text {
+  margin: 0 0 16px;
+  color: #5267d8;
+  font-weight: 700;
+}
+
+.history-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.history-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 24px;
+}
+
+.history-list:empty::after {
+  content: 'No attempts yet';
+  color: #78839b;
+  font-style: italic;
+}
