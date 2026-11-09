@@ -1,6 +1,11 @@
 import { createHistorySection } from './createHistorySection.js';
 
-export const createGameScreen = (): HTMLElement => {
+type GameScreen = {
+  element: HTMLElement;
+  setLength: (length: number) => void;
+};
+
+export const createGameScreen = (): GameScreen => {
   const gameSection = document.createElement('section');
   const title = document.createElement('h2');
   const guessForm = document.createElement('form');
@@ -8,7 +13,6 @@ export const createGameScreen = (): HTMLElement => {
   const guessInput = document.createElement('input');
   const checkButton = document.createElement('button');
 
-  gameSection.className = 'game-screen';
   title.textContent = 'Enter your guess';
   gameSection.className = 'game-screen';
   title.className = 'game-title';
@@ -30,7 +34,6 @@ export const createGameScreen = (): HTMLElement => {
   checkButton.textContent = 'Check';
 
   guessForm.append(guessLabel, guessInput, checkButton);
-  gameSection.append(title, guessForm);
 
   guessForm.addEventListener('submit', (event) => {
     event.preventDefault();

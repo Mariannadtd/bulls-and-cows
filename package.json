@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mariannatdd/bulls-and-cows.git"
+    "url": "git+https://github.com/Mariannadtd/bulls-and-cows.git"
   },
   "keywords": [],
   "author": "",
   "bugs": {
-    "url": "https://github.com/Mariannatdd/bulls-and-cows/issues"
+    "url": "https://github.com/Mariannadtd/bulls-and-cows/issues"
   },
-  "homepage": "https://github.com/Mariannatdd/bulls-and-cows#readme",
+  "homepage": "https://github.com/Mariannadtd/bulls-and-cows#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.14.0",
