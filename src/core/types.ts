@@ -3,3 +3,6 @@ export type GuessResult = {
   bulls: number;
   cows: number;
 };
+export type GuessHistoryEntry = GuessResult & {
+  guess: string;
+};

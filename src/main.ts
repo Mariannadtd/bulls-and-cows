@@ -1,3 +1,8 @@
+import { createDigitValidator } from './core/createDigitValidator.js';
+import { evaluateGuess } from './core/evaluateGuess.js';
+import { generateSecret } from './core/generateSecret.js';
+import { isValidGuess } from './core/isValidGuess.js';
+import type { GuessHistoryEntry, NumeralBase } from './core/types.js';
 import { createGameScreen } from './ui/createGameScreen.js';
 
 const baseOptions = [
@@ -20,6 +25,49 @@ const startButton = document.createElement('button');
 const selectedSettings = document.createElement('p');
 const gameScreen = createGameScreen();
 gameScreen.element.hidden = true;
+
+let currentBase: NumeralBase = 10;
+let currentLength = 4;
+let secret = '';
+let guessHistory: GuessHistoryEntry[] = [];
+
+const handleGuess = (guess: string): void => {
+  if (!isValidGuess(guess, currentLength, currentBase)) {
+    gameScreen.showMessage(`Enter ${currentLength} unique digits from the selected number system.`);
+    return;
+  }
+
+  const normalizedGuess = guess.toLowerCase();
+
+  const isRepeatedGuess = guessHistory.some((entry) => entry.guess === normalizedGuess);
+
+  if (isRepeatedGuess) {
+    gameScreen.showMessage('You have already tried this guess.');
+    return;
+  }
+
+  const result = evaluateGuess(secret, normalizedGuess);
+
+  const newEntry: GuessHistoryEntry = {
+    guess: normalizedGuess,
+    ...result,
+  };
+
+  guessHistory = [...guessHistory, newEntry];
+
+  gameScreen.renderHistory(guessHistory);
+  gameScreen.clearInput();
+
+  if (result.bulls === currentLength) {
+    gameScreen.showMessage(`You won in ${guessHistory.length} attempts! Secret: ${secret}`);
+    gameScreen.setFinished(true);
+    return;
+  }
+
+  gameScreen.showMessage(`Bulls: ${result.bulls}, Cows: ${result.cows}`);
+};
+
+gameScreen.setGuessHandler(handleGuess);
 
 title.textContent = 'BULLS & COWS';
 baseLabel.textContent = 'Number system';
@@ -80,14 +128,27 @@ updateAvailableLengths();
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
+
+  currentBase = Number(baseSelect.value) as NumeralBase;
+  currentLength = Number(lengthSelect.value);
+  secret = generateSecret(currentLength, currentBase);
+  guessHistory = [];
+
   baseSelect.disabled = true;
   lengthSelect.disabled = true;
   startButton.disabled = true;
-  gameScreen.setLength(Number(lengthSelect.value));
+
+  gameScreen.setLength(currentLength);
+  gameScreen.setDigitValidator(createDigitValidator(currentBase));
+  gameScreen.renderHistory(guessHistory);
+  gameScreen.setFinished(false);
+  gameScreen.showMessage('Game started. Make your first guess.');
   gameScreen.element.hidden = false;
+  gameScreen.clearInput();
 
   const selectedBaseLabel = baseSelect.selectedOptions.item(0)?.textContent ?? '';
-  selectedSettings.textContent = `Selected: ${selectedBaseLabel}, length ${lengthSelect.value}`;
+
+  selectedSettings.textContent = `Selected: ${selectedBaseLabel}, length ${currentLength}`;
 });
 
 form.append(baseLabel, baseSelect, lengthLabel, lengthSelect, startButton);
