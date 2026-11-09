@@ -6,3 +6,11 @@ export type GuessResult = {
 export type GuessHistoryEntry = GuessResult & {
   guess: string;
 };
+
+export type GameRecord = {
+  base: NumeralBase;
+  length: number;
+  attempts: number;
+  timeMs: number;
+  completedAt: string;
+};

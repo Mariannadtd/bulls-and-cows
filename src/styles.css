@@ -88,6 +88,12 @@ body {
   text-align: center;
 }
 
+.possible-secrets {
+  margin: 4px 0 0;
+  color: #78839b;
+  font-size: 14px;
+}
+
 .game-screen {
   margin-top: 28px;
   padding-top: 24px;
@@ -101,6 +107,13 @@ body {
 .game-title {
   margin: 0 0 18px;
   font-size: 24px;
+  text-align: center;
+}
+
+.timer-text {
+  margin: -8px 0 18px;
+  color: #5267d8;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -122,6 +135,17 @@ body {
 
 .check-button:hover {
   background: #2d3a55;
+}
+
+.check-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.game-message {
+  min-height: 24px;
+  margin: 12px 0 0;
+  color: #34415d;
 }
 
 .history {
@@ -150,4 +174,77 @@ body {
   content: 'No attempts yet';
   color: #78839b;
   font-style: italic;
+}
+
+.history-item,
+.record-item {
+  line-height: 1.45;
+}
+
+.new-game-button {
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 700;
+  color: #ffffff;
+  background: #5267d8;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.new-game-button:hover {
+  background: #4054bd;
+}
+
+.new-game-button[hidden] {
+  display: none;
+}
+
+.records {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #dbe3f5;
+}
+
+.records-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  text-align: center;
+}
+
+.records-description {
+  margin: 0 0 16px;
+  color: #78839b;
+  font-size: 14px;
+  text-align: center;
+}
+
+.records-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 24px;
+}
+
+.records-list:empty::after {
+  content: 'No records yet';
+  color: #78839b;
+  font-style: italic;
+}
+
+@media (width <= 520px) {
+  body {
+    padding: 12px;
+  }
+
+  .app {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
+  .app-title {
+    font-size: 30px;
+  }
 }

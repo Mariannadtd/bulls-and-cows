@@ -1,9 +1,14 @@
+import { countPossibleSecrets } from './core/countPossibleSecrets.js';
 import { createDigitValidator } from './core/createDigitValidator.js';
 import { evaluateGuess } from './core/evaluateGuess.js';
 import { generateSecret } from './core/generateSecret.js';
 import { isValidGuess } from './core/isValidGuess.js';
-import type { GuessHistoryEntry, NumeralBase } from './core/types.js';
+import { addRecord } from './core/records.js';
+import { loadRecords, saveRecords } from './core/recordsStorage.js';
+import type { GameRecord, GuessHistoryEntry, NumeralBase } from './core/types.js';
 import { createGameScreen } from './ui/createGameScreen.js';
+import { createRecordsSection } from './ui/createRecordsSection.js';
+import { formatDuration } from './ui/formatDuration.js';
 
 const baseOptions = [
   { value: 2, label: 'Binary: 0-1' },
@@ -22,14 +27,17 @@ const baseSelect = document.createElement('select');
 const lengthLabel = document.createElement('label');
 const lengthSelect = document.createElement('select');
 const startButton = document.createElement('button');
+const possibleSecretsText = document.createElement('p');
 const selectedSettings = document.createElement('p');
 const gameScreen = createGameScreen();
+const recordsSection = createRecordsSection();
 gameScreen.element.hidden = true;
 
 let currentBase: NumeralBase = 10;
 let currentLength = 4;
 let secret = '';
 let guessHistory: GuessHistoryEntry[] = [];
+let records: GameRecord[] = loadRecords();
 
 const handleGuess = (guess: string): void => {
   if (!isValidGuess(guess, currentLength, currentBase)) {
@@ -59,7 +67,22 @@ const handleGuess = (guess: string): void => {
   gameScreen.clearInput();
 
   if (result.bulls === currentLength) {
-    gameScreen.showMessage(`You won in ${guessHistory.length} attempts! Secret: ${secret}`);
+    const timeMs = gameScreen.stopTimer();
+    const attemptWord = guessHistory.length === 1 ? 'attempt' : 'attempts';
+    const newRecord: GameRecord = {
+      base: currentBase,
+      length: currentLength,
+      attempts: guessHistory.length,
+      timeMs,
+      completedAt: new Date().toISOString(),
+    };
+
+    records = addRecord(records, newRecord);
+    saveRecords(records);
+    recordsSection.render(records);
+    gameScreen.showMessage(
+      `You won in ${guessHistory.length} ${attemptWord} and ${formatDuration(timeMs)}! Secret: ${secret}`,
+    );
     gameScreen.setFinished(true);
     return;
   }
@@ -110,10 +133,21 @@ baseLabel.className = 'field-label';
 baseSelect.className = 'field-control';
 form.className = 'settings-form';
 
+possibleSecretsText.className = 'possible-secrets';
 selectedSettings.className = 'selected-settings';
 
+const getSelectedBase = (): NumeralBase => Number(baseSelect.value) as NumeralBase;
+
+const updatePossibleSecrets = (): void => {
+  const base = getSelectedBase();
+  const length = Number(lengthSelect.value);
+  const count = countPossibleSecrets(length, base);
+
+  possibleSecretsText.textContent = `Possible secrets: ${count.toLocaleString()}`;
+};
+
 const updateAvailableLengths = (): void => {
-  const selectedBase = Number(baseSelect.value);
+  const selectedBase = getSelectedBase();
 
   for (const option of lengthSelect.options) {
     option.disabled = Number(option.value) > selectedBase;
@@ -122,14 +156,30 @@ const updateAvailableLengths = (): void => {
   if (Number(lengthSelect.value) > selectedBase) {
     lengthSelect.value = '2';
   }
+
+  updatePossibleSecrets();
 };
+
+const resetToSettings = (): void => {
+  baseSelect.disabled = false;
+  lengthSelect.disabled = false;
+  startButton.disabled = false;
+  selectedSettings.textContent = '';
+  gameScreen.reset();
+  gameScreen.element.hidden = true;
+  updateAvailableLengths();
+  baseSelect.focus();
+};
+
 baseSelect.addEventListener('change', updateAvailableLengths);
+lengthSelect.addEventListener('change', updatePossibleSecrets);
+gameScreen.setNewGameHandler(resetToSettings);
 updateAvailableLengths();
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  currentBase = Number(baseSelect.value) as NumeralBase;
+  currentBase = getSelectedBase();
   currentLength = Number(lengthSelect.value);
   secret = generateSecret(currentLength, currentBase);
   guessHistory = [];
@@ -144,6 +194,7 @@ form.addEventListener('submit', (event) => {
   gameScreen.setFinished(false);
   gameScreen.showMessage('Game started. Make your first guess.');
   gameScreen.element.hidden = false;
+  gameScreen.startTimer();
   gameScreen.clearInput();
 
   const selectedBaseLabel = baseSelect.selectedOptions.item(0)?.textContent ?? '';
@@ -151,7 +202,9 @@ form.addEventListener('submit', (event) => {
   selectedSettings.textContent = `Selected: ${selectedBaseLabel}, length ${currentLength}`;
 });
 
-form.append(baseLabel, baseSelect, lengthLabel, lengthSelect, startButton);
-app.append(title, form, selectedSettings, gameScreen.element);
+recordsSection.render(records);
+
+form.append(baseLabel, baseSelect, lengthLabel, lengthSelect, possibleSecretsText, startButton);
+app.append(title, form, selectedSettings, gameScreen.element, recordsSection.element);
 
 document.body.replaceChildren(app);
